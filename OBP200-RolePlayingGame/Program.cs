@@ -9,7 +9,7 @@ class Program
 
     // Spelarens "databas": alla värden som strängar
     // index: 0 Name, 1 Class, 2 HP, 3 MaxHP, 4 ATK, 5 DEF, 6 GOLD, 7 XP, 8 LEVEL, 9 POTIONS, 10 INVENTORY (semicolon-sep)
-    static string[] Player = new string[11];
+    static Player player = new Player(); 
 
     // Rum: [type, label]
     // types: battle, treasure, shop, rest, boss
@@ -99,18 +99,23 @@ class Program
                 break;
         }
 
-        // Fyll player-array
-        Player[0] = name;
-        Player[1] = cls;
-        Player[2] = hp.ToString();
-        Player[3] = maxhp.ToString();
-        Player[4] = atk.ToString();
-        Player[5] = def.ToString();
-        Player[6] = gold.ToString();
-        Player[7] = "0";   // XP
-        Player[8] = "1";   // LEVEL
-        Player[9] = potions.ToString();
-        Player[10] = "Wooden Sword;Cloth Armor"; // inventory som semicolon-separerad sträng
+        player.Name = name;
+        player.Class = cls;
+
+        player.Hp = hp;
+        player.MaxHp = maxhp;
+
+        player.Attack = atk;
+        player.Defense = def;
+
+        player.Gold = gold;
+        player.Xp = 0;
+        player.Level = 1;
+
+        player.Potions = potions;
+
+        player.Inventory.Add("Wooden Sword");
+        player.Inventory.Add("Cloth Armor");
 
         // Initiera karta (linjärt äventyr)
         Rooms.Clear();
@@ -660,4 +665,23 @@ class Program
             return fallback;
         }
     }
+}
+class Player
+{
+    public string Name { get; set; }
+    public string Class { get; set; }
+
+    public int Hp { get; set; }
+    public int MaxHp { get; set; }
+
+    public int Attack { get; set; }
+    public int Defense { get; set; }
+
+    public int Gold { get; set; }
+    public int Xp { get; set; }
+    public int Level { get; set; }
+
+    public int Potions { get; set; }
+
+    public List<string> Inventory { get; set; } = new();
 }
