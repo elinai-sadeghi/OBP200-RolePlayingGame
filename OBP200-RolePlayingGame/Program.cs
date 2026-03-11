@@ -314,8 +314,8 @@ class Program
 
     static int CalculatePlayerDamage(int enemyDef)
     {
-        int atk = ParseInt(Player[4], 5);
-        string cls = Player[1] ?? "Warrior";
+        int atk = player.Attack;
+        string cls = player.Class ?? "Warrior";
 
         // Beräkna grundskada
         int baseDmg = Math.Max(1, atk - (enemyDef / 2));
@@ -415,27 +415,30 @@ class Program
 
     static void ApplyDamageToPlayer(int dmg)
     {
-        int hp = ParseInt(Player[2], 0);
-        hp -= Math.Max(0, dmg);
-        Player[2] = Math.Max(0, hp).ToString();
+        player.Hp -= Math.Max(0, dmg);
+
+        if (player.Hp < 0)
+        {
+            player.Hp = 0;
+        }
     }
 
     static void UsePotion()
     {
-        int pot = ParseInt(Player[9], 0);
+        int pot = player.Potions;
         if (pot <= 0)
         {
             Console.WriteLine("Du har inga drycker kvar.");
             return;
         }
-        int hp = ParseInt(Player[2], 0);
-        int maxhp = ParseInt(Player[3], 1);
+        int hp = player.Hp;
+        int maxhp = player.MaxHp;
 
         // Helning av spelaren
         int heal = 12;
         int newHp = Math.Min(maxhp, hp + heal);
-        Player[2] = newHp.ToString();
-        Player[9] = (pot - 1).ToString();
+        player.Hp = newHp;
+        player.Potions = pot - 1;
 
         Console.WriteLine($"Du dricker en dryck och återfår {newHp - hp} HP.");
     }
@@ -452,7 +455,7 @@ class Program
 
     static bool IsPlayerDead()
     {
-        return ParseInt(Player[2], 0) <= 0;
+        return player.Hp <= 0;
     }
 
     static void AddPlayerXp(int amount)
@@ -643,7 +646,7 @@ class Program
 
     static void ShowStatus()
     {
-        Console.WriteLine($"[{Player[0]} | {Player[1]}]  HP {Player[2]}/{Player[3]}  ATK {Player[4]}  DEF {Player[5]}  LVL {Player[8]}  XP {Player[7]}  Guld {Player[6]}  Drycker {Player[9]}");
+        Console.WriteLine($"[{player.Name} | {player.Class}]  HP {player.Hp}/{player.MaxHp}  ATK {player.Attack}  DEF {player.Defense}  LVL {player.Level}  XP {player.Xp}  Guld {player.Gold}  Drycker {player.Potions}");
         var inv = (Player[10] ?? "");
         if (!string.IsNullOrWhiteSpace(inv))
         {
