@@ -1,6 +1,6 @@
 namespace OBP200_RolePlayingGame;
 
-class Character
+abstract class Character
 {
     public string Name { get; set; }
     public int Hp { get; set; }
