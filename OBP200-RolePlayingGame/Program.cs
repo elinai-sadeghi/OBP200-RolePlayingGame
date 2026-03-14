@@ -16,7 +16,7 @@ class Program
     static List<Room> Rooms = new();
 
     // Fiendemallar: [type, name, HP, ATK, DEF, XPReward, GoldReward]
-    static List<string[]> EnemyTemplates = new List<string[]>();
+    static List<Enemy> EnemyTemplates = new();
 
     // Status för kartan
     static int CurrentRoomIndex = 0;
@@ -206,17 +206,17 @@ class Program
     static bool DoBattle(bool isBoss)
     {
         var enemy = GenerateEnemy(isBoss);
-        Console.WriteLine($"En {enemy[1]} dyker upp! (HP {enemy[2]}, ATK {enemy[3]}, DEF {enemy[4]})");
+        Console.WriteLine($"En {enemy.Name} dyker upp! (HP {enemy.Hp}, ATK {enemy.Attack}, DEF {enemy.Defense})");
 
-        int enemyHp = ParseInt(enemy[2], 10);
-        int enemyAtk = ParseInt(enemy[3], 3);
-        int enemyDef = ParseInt(enemy[4], 0);
+        int enemyHp = enemy.Hp;
+        int enemyAtk = enemy.Attack;
+        int enemyDef = enemy.Defense;
 
         while (enemyHp > 0 && !IsPlayerDead())
         {
             Console.WriteLine();
             ShowStatus();
-            Console.WriteLine($"Fiende: {enemy[1]} HP={enemyHp}");
+            Console.WriteLine($"Fiende: {enemy.Name} HP={enemyHp}");
             Console.WriteLine("[A] Attack   [X] Special   [P] Dryck   [R] Fly");
             if (isBoss) Console.WriteLine("(Du kan inte fly från en boss!)");
             Console.Write("Val: ");
@@ -227,13 +227,13 @@ class Program
             {
                 int damage = CalculatePlayerDamage(enemyDef);
                 enemyHp -= damage;
-                Console.WriteLine($"Du slog {enemy[1]} för {damage} skada.");
+                Console.WriteLine($"Du slog {enemy.Name} för {damage} skada.");
             }
             else if (cmd == "X")
             {
                 int special = UseClassSpecial(enemyDef, isBoss);
                 enemyHp -= special;
-                Console.WriteLine($"Special! {enemy[1]} tar {special} skada.");
+                Console.WriteLine($"Special! {enemy.Name} tar {special} skada.");
             }
             else if (cmd == "P")
             {
@@ -261,7 +261,7 @@ class Program
             // Fiendens tur
             int enemyDamage = CalculateEnemyDamage(enemyAtk);
             ApplyDamageToPlayer(enemyDamage);
-            Console.WriteLine($"{enemy[1]} anfaller och gör {enemyDamage} skada!");
+            Console.WriteLine($"{enemy.Name} anfaller och gör {enemyDamage} skada!");
         }
 
         if (IsPlayerDead())
@@ -270,47 +270,98 @@ class Program
         }
 
         // Vinstrapporter, XP, guld, loot
-        int xpReward = ParseInt(enemy[5], 5);
-        int goldReward = ParseInt(enemy[6], 3);
+        int xpReward = enemy.XpReward;
+        int goldReward = enemy.GoldReward;
+
 
         AddPlayerXp(xpReward);
         AddPlayerGold(goldReward);
 
         Console.WriteLine($"Seger! +{xpReward} XP, +{goldReward} guld.");
-        MaybeDropLoot(enemy[1]);
+        MaybeDropLoot(enemy.Name);
 
         return true;
     }
 
-    static string[] GenerateEnemy(bool isBoss)
+    static Enemy GenerateEnemy(bool isBoss)
     {
         if (isBoss)
         {
-            // Boss-mall
-            return new[] { "boss", "Urdraken", "55", "9", "4", "30", "50" };
+            return new Enemy
+            {
+                Type = "boss",
+                Name = "Urdraken",
+                Hp = 55,
+                Attack = 9,
+                Defense = 4,
+                XpReward = 30,
+                GoldReward = 50
+            };
         }
         else
         {
-            // Slumpa bland templates
-            var template = EnemyTemplates[Rng.Next(EnemyTemplates.Count)];
             
-            // Slmumpmässig justering av stats
-            int hp = ParseInt(template[2], 10) + Rng.Next(-1, 3);
-            int atk = ParseInt(template[3], 3) + Rng.Next(0, 2);
-            int def = ParseInt(template[4], 0) + Rng.Next(0, 2);
-            int xp = ParseInt(template[5], 4) + Rng.Next(0, 3);
-            int gold = ParseInt(template[6], 2) + Rng.Next(0, 3);
-            return new[] { template[0], template[1], hp.ToString(), atk.ToString(), def.ToString(), xp.ToString(), gold.ToString() };
+            var template = EnemyTemplates[Rng.Next(EnemyTemplates.Count)];
+
+            return new Enemy
+            {
+                Type = template.Type,
+                Name = template.Name,
+                Hp = template.Hp + Rng.Next(-1, 3),
+                Attack = template.Attack + Rng.Next(0, 2),
+                Defense = template.Defense + Rng.Next(0, 2),
+                XpReward = template.XpReward + Rng.Next(0, 3),
+                GoldReward = template.GoldReward + Rng.Next(0, 3)
+            };
         }
     }
 
     static void InitEnemyTemplates()
     {
         EnemyTemplates.Clear();
-        EnemyTemplates.Add(new[] { "beast", "Vildsvin", "18", "4", "1", "6", "4" });
-        EnemyTemplates.Add(new[] { "undead", "Skelett", "20", "5", "2", "7", "5" });
-        EnemyTemplates.Add(new[] { "bandit", "Bandit", "16", "6", "1", "8", "6" });
-        EnemyTemplates.Add(new[] { "slime", "Geléslem", "14", "3", "0", "5", "3" });
+        EnemyTemplates.Add(new Enemy
+        {
+            Type = "beast",
+            Name = "Vildsvin",
+            Hp = 18,
+            Attack = 4,
+            Defense = 1,
+            XpReward = 6,
+            GoldReward = 4
+        });
+
+        EnemyTemplates.Add(new Enemy
+        {
+            Type = "undead",
+            Name = "Skelett",
+            Hp = 20,
+            Attack = 5,
+            Defense = 2,
+            XpReward = 7,
+            GoldReward = 5
+        });
+
+        EnemyTemplates.Add(new Enemy
+        {
+            Type = "bandit",
+            Name = "Bandit",
+            Hp = 16,
+            Attack = 6,
+            Defense = 1,
+            XpReward = 8,
+            GoldReward = 6
+        });
+
+        EnemyTemplates.Add(new Enemy
+        {
+            Type = "slime",
+            Name = "Geléslem",
+            Hp = 14,
+            Attack = 3,
+            Defense = 0,
+            XpReward = 5,
+            GoldReward = 3
+        });
     }
 
     static int CalculatePlayerDamage(int enemyDef)
