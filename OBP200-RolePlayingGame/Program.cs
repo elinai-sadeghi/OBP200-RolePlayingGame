@@ -13,7 +13,7 @@ class Program
 
     // Rum: [type, label]
     // types: battle, treasure, shop, rest, boss
-    static List<string[]> Rooms = new List<string[]>();
+    static List<Room> Rooms = new();
 
     // Fiendemallar: [type, name, HP, ATK, DEF, XPReward, GoldReward]
     static List<string[]> EnemyTemplates = new List<string[]>();
@@ -120,13 +120,13 @@ class Program
 
         // Initiera karta (linjärt äventyr)
         Rooms.Clear();
-        Rooms.Add(new[] { "battle", "Skogsstig" });
-        Rooms.Add(new[] { "treasure", "Gammal kista" });
-        Rooms.Add(new[] { "shop", "Vandrande köpman" });
-        Rooms.Add(new[] { "battle", "Grottans mynning" });
-        Rooms.Add(new[] { "rest", "Lägereld" });
-        Rooms.Add(new[] { "battle", "Grottans djup" });
-        Rooms.Add(new[] { "boss", "Urdraken" });
+        Rooms.Add(new Room { Type = "battle", Label = "Skogsstig" });
+        Rooms.Add(new Room { Type = "treasure", Label = "Gammal kista" });
+        Rooms.Add(new Room { Type = "shop", Label = "Vandrande köpman" });
+        Rooms.Add(new Room { Type = "battle", Label = "Grottans mynning" });
+        Rooms.Add(new Room { Type = "rest", Label = "Lägereld" });
+        Rooms.Add(new Room { Type = "battle", Label = "Grottans djup" });
+        Rooms.Add(new Room { Type = "boss", Label = "Urdraken" });
 
         CurrentRoomIndex = 0;
 
@@ -139,9 +139,9 @@ class Program
         while (true)
         {
             var room = Rooms[CurrentRoomIndex];
-            Console.WriteLine($"--- Rum {CurrentRoomIndex + 1}/{Rooms.Count}: {room[1]} ({room[0]}) ---");
+            Console.WriteLine($"--- Rum {CurrentRoomIndex + 1}/{Rooms.Count}: {room.Label} ({room.Type}) ---");
 
-            bool continueAdventure = EnterRoom(room[0]);
+            bool continueAdventure = EnterRoom(room.Type);
             
             if (IsPlayerDead())
             {
