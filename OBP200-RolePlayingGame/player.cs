@@ -1,15 +1,10 @@
 namespace OBP200_RolePlayingGame;
 
-public class Player
+class Player : Character
 {
-    public string Name { get; set; }
     public string Class { get; set; }
-
-    public int Hp { get; set; }
+    
     public int MaxHp { get; set; }
-
-    public int Attack { get; set; }
-    public int Defense { get; set; }
 
     public int Gold { get; set; }
     public int Xp { get; set; }
