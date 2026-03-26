@@ -1,6 +1,6 @@
 namespace OBP200_RolePlayingGame;
 
-class Room
+abstract class Room
 {
     public string Label { get; }
 
