@@ -2,6 +2,10 @@ namespace OBP200_RolePlayingGame;
 
 class Room
 {
-    public string Type { get; set; }
-    public string Label { get; set; }
+    public string Label { get; }
+
+    protected Room(string label)
+    {
+        Label = label;
+    }
 }
