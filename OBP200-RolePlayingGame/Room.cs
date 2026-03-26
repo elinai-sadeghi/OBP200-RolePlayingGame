@@ -8,4 +8,6 @@ abstract class Room
     {
         Label = label;
     }
+
+    public abstract bool Enter();
 }
