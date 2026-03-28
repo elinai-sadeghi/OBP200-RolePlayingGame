@@ -143,7 +143,7 @@ class Program
 
             bool continueAdventure = room.Enter();
             
-            if (IsPlayerDead())
+            if (player.IsDead())
             {
                 Console.WriteLine("Du har stupat... Spelet över.");
                 break;
@@ -192,7 +192,7 @@ class Program
         int enemyAtk = enemy.Attack;
         int enemyDef = enemy.Defense;
 
-        while (enemyHp > 0 && !IsPlayerDead())
+        while (enemyHp > 0 && !player.IsDead())
         {
             Console.WriteLine();
             ShowStatus();
@@ -217,7 +217,7 @@ class Program
             }
             else if (cmd == "P")
             {
-                UsePotion();
+                player.UsePotion();
             }
             else if (cmd == "R" && !isBoss)
             {
@@ -244,7 +244,7 @@ class Program
             Console.WriteLine($"{enemy.Name} anfaller och gör {enemyDamage} skada!");
         }
 
-        if (IsPlayerDead())
+        if (player.IsDead())
         {
             return false; // avsluta äventyr
         }
@@ -254,12 +254,11 @@ class Program
         int goldReward = enemy.GoldReward;
 
 
-        AddPlayerXp(xpReward);
-        AddPlayerGold(goldReward);
+        player.AddXp(xpReward);
+        player.AddGold(goldReward);
 
         Console.WriteLine($"Seger! +{xpReward} XP, +{goldReward} guld.");
         MaybeDropLoot(enemy.Name);
-
         return true;
     }
 
@@ -454,27 +453,6 @@ class Program
             player.Hp = 0;
         }
     }
-
-    static void UsePotion()
-    {
-        int pot = player.Potions;
-        if (pot <= 0)
-        {
-            Console.WriteLine("Du har inga drycker kvar.");
-            return;
-        }
-        int hp = player.Hp;
-        int maxhp = player.MaxHp;
-
-        // Helning av spelaren
-        int heal = 12;
-        int newHp = Math.Min(maxhp, hp + heal);
-        player.Hp = newHp;
-        player.Potions = pot - 1;
-
-        Console.WriteLine($"Du dricker en dryck och återfår {newHp - hp} HP.");
-    }
-
     static bool TryRunAway()
     {
         // Flyktschans baserad på karaktärsklass
@@ -484,65 +462,6 @@ class Program
         if (cls == "Mage") chance = 0.35;
         return Rng.NextDouble() < chance;
     }
-
-    static bool IsPlayerDead()
-    {
-        return player.Hp <= 0;
-    }
-
-    static void AddPlayerXp(int amount)
-    {
-        player.Xp += Math.Max(0, amount);
-        MaybeLevelUp();
-    }
-
-    static void AddPlayerGold(int amount)
-    {
-        player.Gold += Math.Max(0, amount);
-    }
-
-    static void MaybeLevelUp()
-    {
-        // Nivåtrösklar
-        int xp = player.Xp;
-        int lvl = player.Level;
-        int nextThreshold = lvl == 1 ? 10 : (lvl == 2 ? 25 : (lvl == 3 ? 45 : lvl * 20));
-
-        if (xp >= nextThreshold)
-        {
-            player.Level = lvl + 1;
-
-            // Uppgradering baserad på karaktärsklass
-            string cls = player.Class ?? "Warrior";
-            int maxhp = player.MaxHp;
-            int atk = player.Attack;
-            int def = player.Defense;
-
-            switch (cls)
-            {
-                case "Warrior":
-                    maxhp += 6; atk += 2; def += 2;
-                    break;
-                case "Mage":
-                    maxhp += 4; atk += 4; def += 1;
-                    break;
-                case "Rogue":
-                    maxhp += 5; atk += 3; def += 1;
-                    break;
-                default:
-                    maxhp += 4; atk += 3; def += 1;
-                    break;
-            }
-
-            player.MaxHp = maxhp;
-            player.Attack = atk;
-            player.Defense = def;
-            player.Hp = maxhp; // full heal vid level up
-
-            Console.WriteLine($"Du når nivå {player.Level}! Värden ökade och HP återställd.");
-        }
-    }
-
     static void MaybeDropLoot(string enemyName)
     {
         // Enkel loot-regel
@@ -565,7 +484,7 @@ class Program
         if (Rng.NextDouble() < 0.5)
         {
             int gold = Rng.Next(8, 15);
-            AddPlayerGold(gold);
+            player.AddGold(gold);
             Console.WriteLine($"Kistan innehåller {gold} guld!");
         }
         else
@@ -653,7 +572,7 @@ class Program
         }
 
         player.Inventory.RemoveAll(x => x == "Minor Gem");
-        AddPlayerGold(count * 5);
+        player.AddGold(count * 5);
         Console.WriteLine($"Du säljer {count} st Minor Gem för {count * 5} guld.");
     }
 
@@ -675,8 +594,4 @@ class Program
             Console.WriteLine($"Väska: {string.Join(", ", player.Inventory)}");
         }
     }
-    
-    // ======= Hjälpmetoder =======
-    
-    
 }
