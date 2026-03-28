@@ -12,5 +12,5 @@ class Player : Character
 
     public int Potions { get; set; }
 
-    public List<string> Inventory { get; set; } = new();
+    public List<string> Inventory { get; private set; } = new();
 }
