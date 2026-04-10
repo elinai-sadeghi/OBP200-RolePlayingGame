@@ -99,26 +99,9 @@ class Program
                 break;
         }
 
-        player.Name = name;
-        player.Class = cls;
+        player.Initialize(name, cls, hp, maxhp, atk, def, gold, potions);
 
-        player.Hp = hp;
-        player.MaxHp = maxhp;
-
-        player.Attack = atk;
-        player.Defense = def;
-
-        player.Gold = gold;
-        player.Xp = 0;
-        player.Level = 1;
-
-        player.Potions = potions;
-
-        player.Inventory.Clear();
-        player.Inventory.Add("Wooden Sword");
-        player.Inventory.Add("Cloth Armor");
-
-        // Initiera karta (linjärt äventyr)
+        
         Rooms.Clear();
         Rooms.Add(new BattleRoom("Skogsstig"));
         Rooms.Add(new TreasureRoom("Gammal kista"));
@@ -249,7 +232,7 @@ class Program
             return false; // avsluta äventyr
         }
 
-        // Vinstrapporter, XP, guld, loot
+        // Vinstrapporter, XP, guld 
         int xpReward = enemy.XpReward;
         int goldReward = enemy.GoldReward;
 
@@ -392,7 +375,7 @@ class Program
             if (gold >= 3)
             {
                 Console.WriteLine("Mage kastar Fireball!");
-                player.Gold -= 3;
+                player.SpendGold(3);
                 int atk = player.Attack;
                 specialDmg = Math.Max(3, atk + 5 - (enemyDef / 2));
             }
@@ -446,12 +429,7 @@ class Program
 
     static void ApplyDamageToPlayer(int dmg)
     {
-        player.Hp -= Math.Max(0, dmg);
-
-        if (player.Hp < 0)
-        {
-            player.Hp = 0;
-        }
+        player.TakeDamage(dmg);
     }
     static bool TryRunAway()
     {
@@ -514,15 +492,15 @@ class Program
 
             if (val == "1")
             {
-                TryBuy(10, () => player.Potions += 1, "Du köper en dryck.");
+                TryBuy(10, () => player.AddPotion(1), "Du köper en dryck.");
             }
             else if (val == "2")
             {
-                TryBuy(25, () => player.Attack += 2, "Du köper ett bättre vapen.");
+                TryBuy(25, () => player.IncreaseAttack(2), "Du köper ett bättre vapen.");
             }
             else if (val == "3")
             {
-                TryBuy(25, () => player.Defense += 2, "Du köper bättre rustning.");
+                TryBuy(25, () => player.IncreaseDefense(2), "Du köper bättre rustning.");
             }
             else if (val == "4")
             {
@@ -546,7 +524,7 @@ class Program
         int gold = player.Gold;
         if (gold >= cost)
         {
-            player.Gold -= cost;
+            player.SpendGold(cost);
             apply();
             Console.WriteLine(successMsg);
         }
@@ -579,7 +557,7 @@ class Program
     public static bool DoRest()
     {
         Console.WriteLine("Du slår läger och vilar.");
-        player.Hp = player.MaxHp;
+        player.RestoreToFullHealth();
         Console.WriteLine("HP återställt till max.");
         return true;
     }

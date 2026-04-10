@@ -3,15 +3,14 @@ using System;
 
 class Player : Character
 {
-    public string Class { get; set; }
+    public string Class { get; private set; }
+    public int MaxHp { get; private set; }
 
-    public int MaxHp { get; set; }
+    public int Gold { get; private set; }
+    public int Xp { get; private set; }
+    public int Level { get; private set; }
 
-    public int Gold { get; set; }
-    public int Xp { get; set; }
-    public int Level { get; set; }
-
-    public int Potions { get; set; }
+    public int Potions { get; private set; }
 
     public List<string> Inventory { get; private set; } = new();
 
@@ -73,5 +72,69 @@ class Player : Character
     public void AddGold(int amount)
     {
         Gold += Math.Max(0, amount);
+    }
+    public void SpendGold(int amount)
+    {
+        if (amount > 0 && Gold >= amount)
+        {
+            Gold -= amount;
+        }
+    }
+    public void Initialize(string name, string playerClass, int hp, int maxHp, int attack, int defense, int gold, int potions)
+    {
+        Name = name;
+        Class = playerClass;
+
+        Hp = hp;
+        MaxHp = maxHp;
+
+        Attack = attack;
+        Defense = defense;
+
+        Gold = gold;
+        Xp = 0;
+        Level = 1;
+
+        Potions = potions;
+
+        Inventory.Clear();
+        Inventory.Add("Wooden Sword");
+        Inventory.Add("Cloth Armor");
+    }
+    public void TakeDamage(int damage)
+    {
+        Hp -= Math.Max(0, damage);
+
+        if (Hp < 0)
+        {
+            Hp = 0;
+        }
+    }
+    public void RestoreToFullHealth()
+    {
+        Hp = MaxHp;
+    }
+    public void AddPotion(int amount)
+    {
+        if (amount > 0)
+        {
+            Potions += amount;
+        }
+    }
+
+    public void IncreaseAttack(int amount)
+    {
+        if (amount > 0)
+        {
+            Attack += amount;
+        }
+    }
+
+    public void IncreaseDefense(int amount)
+    {
+        if (amount > 0)
+        {
+            Defense += amount;
+        }
     }
 }
